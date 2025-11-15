@@ -4,6 +4,6 @@ opencv-python-headless>=4.8,<5.0
 pandas==2.3.3
 matplotlib==3.10.7
 reportlab==4.4.4
-streamlit-webrt==0.64.0
+streamlit-webrtc>=0.44.0 
 supervision==0.26.1
 seaborn==0.13.2
