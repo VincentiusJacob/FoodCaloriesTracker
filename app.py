@@ -10,8 +10,9 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 from datetime import datetime
 
-EXPORTS_DIR = Path("exports")
-EXPORTS_DIR.mkdir(exist_ok=True)
+REPO_ROOT   = Path(__file__).parent
+EXPORT_DIR  = REPO_ROOT / "exports"
+EXPORT_DIR.mkdir(exist_ok=True)
 
 def export_pdf(df: pd.DataFrame):
 
