@@ -31,7 +31,6 @@ def predict(image):
     return sv.Detections.from_ultralytics(result)
 
 def load_history() -> pd.DataFrame:
-    """Load history from CSV with error handling"""
     if not CSV_PATH.exists():
         return pd.DataFrame()
     try:
@@ -44,7 +43,6 @@ def load_history() -> pd.DataFrame:
         return pd.DataFrame()
 
 def save_history(new_row: dict):
-    """Save a single row to history CSV"""
     df_old = load_history()
     df_new = pd.DataFrame([new_row])
     
@@ -52,7 +50,13 @@ def save_history(new_row: dict):
     
     try:
         df_final.to_csv(CSV_PATH, index=False)
-        st.success("Data saved successfully!")
+        
+        df_verify = pd.read_csv(CSV_PATH)
+        if len(df_verify) == len(df_final):
+            st.success("Data saved successfully!")
+        else:
+            st.error("Data saved but verification failed.")
+            
     except Exception as e:
         st.error(f"Failed to save data: {e}")
 
@@ -94,4 +98,4 @@ if uploaded:
             row[cls_names[i]] = counts[i]
 
         save_history(row)
-        # st.rerun()  
+        st.rerun()  
