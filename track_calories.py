@@ -94,4 +94,4 @@ if uploaded:
             row[cls_names[i]] = counts[i]
 
         save_history(row)
-        st.rerun()  
+        # st.rerun()  
