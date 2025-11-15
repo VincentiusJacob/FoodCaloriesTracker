@@ -7,11 +7,11 @@ from datetime import datetime
 from ultralytics import YOLO
 import supervision as sv
 
-
 REPO_ROOT   = Path(__file__).parent
 MODEL_PATH  = REPO_ROOT / "model" / "final_model_detr.pt"
 HISTORY_DIR = REPO_ROOT / "history"
 EXPORTS_DIR = REPO_ROOT / "exports"
+
 HISTORY_DIR.mkdir(exist_ok=True)
 EXPORTS_DIR.mkdir(exist_ok=True)
 CSV_PATH    = HISTORY_DIR / "history.csv"
@@ -31,14 +31,32 @@ def predict(image):
     return sv.Detections.from_ultralytics(result)
 
 def load_history() -> pd.DataFrame:
-    return pd.read_csv(CSV_PATH) if CSV_PATH.exists() else pd.DataFrame()
+    """Load history from CSV with error handling"""
+    if not CSV_PATH.exists():
+        return pd.DataFrame()
+    try:
+        df = pd.read_csv(CSV_PATH)
+        if 'datetime' in df.columns:
+            df['datetime'] = pd.to_datetime(df['datetime'], errors='coerce')
+        return df
+    except Exception as e:
+        st.error(f"Error loading history: {e}")
+        return pd.DataFrame()
 
-def save_history(df_new: pd.DataFrame):
+def save_history(new_row: dict):
+    """Save a single row to history CSV"""
     df_old = load_history()
-    df_final = pd.concat([df_old, df_new], ignore_index=True)
-    df_final.to_csv(CSV_PATH, index=False)
+    df_new = pd.DataFrame([new_row])
     
-st.header("Upload Image & Track Calories")
+    df_final = pd.concat([df_old, df_new], ignore_index=True)
+    
+    try:
+        df_final.to_csv(CSV_PATH, index=False)
+        st.success("Data saved successfully!")
+    except Exception as e:
+        st.error(f"Failed to save data: {e}")
+
+st.header("📷 Upload Image & Track Calories")
 
 uploaded = st.file_uploader("Choose Image", type=["png", "jpg", "jpeg"])
 if uploaded:
@@ -53,11 +71,8 @@ if uploaded:
 
     box_ann   = sv.BoxAnnotator(thickness=2)
     label_ann = sv.LabelAnnotator(text_scale=0.4)
-    labels = [f"{cls_names[c]} {conf:.2f}" for c, conf in
-              zip(detections.class_id, detections.confidence)]
-    annotated = label_ann.annotate(
-        box_ann.annotate(img_rgb.copy(), detections), detections, labels
-    )
+    labels = [f"{cls_names[c]} {conf:.2f}" for c, conf in zip(detections.class_id, detections.confidence)]
+    annotated = label_ann.annotate(box_ann.annotate(img_rgb.copy(), detections), detections, labels)
     st.image(annotated, use_container_width=True)
 
     detail = [
@@ -70,9 +85,13 @@ if uploaded:
     st.metric("Total Calories", f"{total_cal} kcal")
 
     if total_cal > 0 and st.button("Are you going to eat this?"):
-        row = {"datetime": datetime.now(), "total_cal": total_cal}
-        row.update({cls_names[i]: counts[i] for i in range(13)})
-        save_history(pd.DataFrame([row]))
-        st.success("Data saved!")
-        st.rerun()
+        row = {
+            "datetime": datetime.now(),
+            "total_cal": total_cal
+        }
 
+        for i in range(13):
+            row[cls_names[i]] = counts[i]
+
+        save_history(row)
+        st.rerun()  
