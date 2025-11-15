@@ -1,0 +1,36 @@
+cat << 'EOF' > .gitignore
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+env/
+venv/
+pip-log.txt
+pip-delete-this-directory.txt
+*.so
+*.dylib
+
+# Virtual environment
+capstone/
+bin/
+include/
+lib/
+lib64/
+share/
+pyvenv.cfg
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Project runtime
+history/history.csv
+exports/*.pdf
+exports/*.png
+EOF
