@@ -10,8 +10,8 @@ from app import export_pdf
 
 REPO_ROOT   = Path(__file__).parent
 HISTORY_FILE   = REPO_ROOT / "history" / "history.csv"
-EXPORT_DIR  = REPO_ROOT / "exports"
-EXPORT_DIR.mkdir(exist_ok=True)
+
+
 
 
 @st.cache_data(show_spinner=False)
