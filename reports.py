@@ -7,6 +7,22 @@ from pathlib import Path
 
 from app import export_pdf
 
+cls_names = {
+    0: "AyamGoreng",
+    1: "Capcay",
+    2: "Nasi",
+    3: "Sayurbayam",
+    4: "Sayurkangkung",
+    5: "Sayursop",
+    6: "Tahu",
+    7: "TelurDadar",
+    8: "TelurMataSapi",
+    9: "TelurRebus",
+    10: "Tempe",
+    11: "Tumisbuncis",
+    12: "food-z7P4"  
+}
+
 REPO_ROOT   = Path(__file__).parent
 HISTORY_FILE = REPO_ROOT / "history" / "history.csv"
 
@@ -69,7 +85,9 @@ display_df["date"] = display_df["datetime"].dt.date
 display_df["time"] = display_df["datetime"].dt.strftime("%H:%M")
 
 
-food_columns = [c for c in display_df.columns if c in cls_names] 
+all_cls_names = list(cls_names.values())
+
+food_columns = [c for c in display_df.columns if c in all_cls_names]
 
 cols_to_show = ["date", "time", "total_cal"] + food_columns
 st.dataframe(display_df[cols_to_show])
